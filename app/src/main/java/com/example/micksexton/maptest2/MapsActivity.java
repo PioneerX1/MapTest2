@@ -36,11 +36,17 @@ public class MapsActivity extends FragmentActivity implements
                 .build();
     }
 
+//    private void setUpMapIfNeeded() {
+//        if (mMap == null) {
+//            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
+//        }
+//    }
+
 
     @Override
     protected void onResume() {
         super.onResume();
-        setUpMapIfNeeded();
+        //setUpMapIfNeeded();
         mGoogleApiClient.connect();
     }
 
