@@ -16,10 +16,16 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapsActivity extends FragmentActivity implements
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+        LocationListener, OnMapReadyCallback {
 
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
@@ -32,6 +38,7 @@ public class MapsActivity extends FragmentActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        setUpMapIfNeeded();
 
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -46,17 +53,26 @@ public class MapsActivity extends FragmentActivity implements
                 .setFastestInterval(1000);   // 1 second, in milliseconds
     }
 
-//    private void setUpMapIfNeeded() {
-//        if (mMap == null) {
-//            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
-//        }
-//    }
+    private void setUpMapIfNeeded() {
+        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        if (mMap == null) {
+            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
+                    .getMapAsync(this);
+        }
+        if (mMap != null) {
+            setUpMap();
+        }
+    }
+
+    private void setUpMap() {
+        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+    }
 
 
     @Override
     protected void onResume() {
         super.onResume();
-        //setUpMapIfNeeded();
+        setUpMapIfNeeded();
         mGoogleApiClient.connect();
     }
 
@@ -92,6 +108,21 @@ public class MapsActivity extends FragmentActivity implements
 
     private void handleNewLocation(Location location) {
         Log.d(TAG, location.toString());
+        // create the coordinates object
+        double currentLat = location.getLatitude();
+        double currentLong = location.getLongitude();
+        LatLng latLng = new LatLng(currentLat, currentLong);
+
+        // create the marker object
+        MarkerOptions options = new MarkerOptions()
+                .position(latLng)
+                .title("I am here!");
+
+        // add marker to the map object
+        mMap.addMarker(options);
+
+        // center the map on the marker
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
     }
 
     @Override
@@ -116,5 +147,10 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onLocationChanged(Location location) {
         handleNewLocation(location);
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+
     }
 }
